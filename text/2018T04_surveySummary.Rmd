@@ -24,7 +24,7 @@ The recruit class size definitions for male Tanner crab in Cook Inlet were revis
 
 Using the new legal size (114 mm), 348 legal males were captured in the 2018 survey.  Mean legal male CPUE was 18.06 crab/nmi (CV = 274%) and ranged from 0 to 249.  The estimated abundance of legal males using the new legal size was 222,852 crabs (+/- 197,861 @ 95% CI), similar to the 4 most recent surveys and less than those prior to 2010 (Table 2; Figure 2).
 
-Using the old legal size (140 mm), 8 legal males were captured in the 2018 survey.  When analyzed using the old size categories, the 2017 survey produced the lowest legal male abundance estimate on record, 5,512 crab (+/- 7,993) (Table 3; Figure 3).      
+Using the old legal size (140 mm), 8 legal males were captured in the 2018 survey.  When analyzed using the old size categories, the 2018 survey produced the lowest legal male abundance estimate on record, 5,512 crab (+/- 7,993) (Table 3; Figure 3).      
 
 Legal male Tanners were found predominately in deep water west of the spit (Figures 4 and 5). 
    
