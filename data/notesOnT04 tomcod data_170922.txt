@@ -1,0 +1,5 @@
+Notes on 2017 tomcod cpue values
+
+found two erroneous tomcod basket wts events 2003T04011 and 2004T04023 CCID 2661 and 3332. 
+Based on datasheets, these changed to .760 and .220kg in temp compy of DB.   
+Not permanently changed in DB for now, because sample T2, so would throw of published crab ests. 
