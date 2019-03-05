@@ -7,6 +7,7 @@ library(stats)
 library(plotrix)
 library (Hmisc)
 library (scales)
+library (gridExtra)
 options (scipen = 10)
 library(extrafont)
 font_import()
@@ -155,28 +156,62 @@ read.csv('./data/C_17_190301.csv') %>%
 
 ## KING and DUNGY CPUE    ##   from 161104 ----
  
-
   ##DUNGIES##
-  dat <- read.csv("./data/qP_910_170920.csv")
+  dat <- read.csv("./data/qP_910_190301.csv")
   
-  dat <-  dat[c("PROJECT_CODE", "YEAR","n","SM_CBar","SM_varC", "LM_CBar","LM_varC","TM_CBar","TM_varC",
-                "TF_CBar","TF_varC")]
+  dat %>% select ("PROJECT_CODE", "YEAR","n","SM_CBar","SM_varC", "LM_CBar","LM_varC","TM_CBar","TM_varC",
+                "TF_CBar","TF_varC") -> dat
   
-  ##Calc sample SDs
-  dat$SM_SD <- (dat$SM_varC^.5)
-  dat$LM_SD <- (dat$LM_varC^.5) 
-  dat$TM_SD <- (dat$TM_varC^.5)
-  dat$TF_SD <- (dat$TF_varC^.5)
+  ##Calc sample SDs and SEM
+  dat %>% mutate(
+    SM_SD = SM_varC^.5,
+    LM_SD = LM_varC^.5,
+    TM_SD = TM_varC^.5,
+    TF_SD = TF_varC^.5, 
+    SM_SE = SM_SD/(n^.5),
+    LM_SE = LM_SD/(n^.5),
+    TM_SE = TM_SD/(n^.5),
+    TF_SE = TF_SD/(n^.5)) %>%
   
   #remove extra cols, reorder and rename 
-  dung_pm <- select(dat,"Proj" = PROJECT_CODE, "Year" = YEAR, n,
-                    SM_CBar, SM_SD, LM_CBar, LM_SD, TM_CBar, TM_SD, TF_CBar, TF_SD)
-  
-  # order by project and year 
-  dung_pm <- arrange(dung_pm, Proj, Year)
-  dung_pm
-  write.csv(dung_pm, "./output/910_pm_170920.csv")
-
+  select("Proj" = PROJECT_CODE, "Year" = YEAR, n,
+                    SM_CBar, SM_SE, LM_CBar, LM_SE, TM_CBar, TM_SE, TF_CBar, TF_SE) %>%
+  arrange(Proj, Year) %>% 
+  filter (Proj == "T04") -> dung_pm 
+  write.csv(dung_pm, "./output/T04_910_cpm_190301.csv") # note previously included SD instead of SE
+  # Plot TM
+  dung_pm %>%  
+  ggplot (aes(x = Year, y = TM_CBar,
+              ymin = ifelse((TM_CBar - TM_SE) > 0, (TM_CBar - TM_SE), 0),
+              ymax = TM_CBar + TM_SE)) + 
+    geom_pointrange() + 
+    scale_x_continuous(breaks = seq(1990,2018,1)) + 
+    labs( x = "Year", y = "CPUE (crab/nmi)", title = 'Total Males') + 
+    theme( axis.text.x = element_text(angle=90, vjust= 0)) -> D_TM
+    D_TM
+  # Plot LM
+    dung_pm %>%   
+      ggplot (aes(x = Year, y = LM_CBar,
+                  ymin = ifelse((LM_CBar - LM_SE) > 0, (LM_CBar - LM_SE), 0),
+                  ymax = LM_CBar + LM_SE)) + 
+      geom_pointrange() + 
+      scale_x_continuous(breaks = seq(1990,2018,1)) + 
+      labs( x = "Year", y = "CPUE (crab/nmi)", title = 'Legal Males') + 
+      theme( axis.text.x = element_text(angle=90, vjust= 0)) -> D_LM
+    D_LM
+  # Plot TF
+    dung_pm %>%  
+      ggplot (aes(x = Year, y = TF_CBar,
+                  ymin = ifelse((TF_CBar - TF_SE) > 0, (TF_CBar - TF_SE), 0),
+                  ymax = TF_CBar + TF_SE)) + 
+      geom_pointrange() + 
+      scale_x_continuous(breaks = seq(1990,2018,1)) + 
+      labs( x = "Year", y = "CPUE (crab/nmi)", title = 'Total Females') + 
+      theme( axis.text.x = element_text(angle=90, vjust= 0)) -> D_TF
+    D_TF 
+    dungyCPM <-arrangeGrob(D_TM,D_LM,D_TF, ncol=1)
+    dungyCPM %>% ggsave(file = "./figs/T04_910_cpm.png", dpi=300, height=8.5, width=6.5, units="in")    
+    
 ## Tanner CH vs CW plot ## ----
   
 read.csv ("./data/931_CHCW_T04T05T06_usedInEst_90to18.csv") %>% 
