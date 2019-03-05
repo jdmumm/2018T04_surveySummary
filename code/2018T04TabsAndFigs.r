@@ -1,3 +1,4 @@
+# modified for 2018 kachemak survey summary, final 190305
 #Format tables for 2017 Kachemak Survey SUmmary, mstly from 931_popEstAndCPUE_161101.R used for 2016 report
 
 #LOAD ----
@@ -6,16 +7,16 @@ library(stats)
 library(plotrix)
 library (Hmisc)
 options (scipen = 10)
-dat_17 <- read.csv('./data/qP_simp_17_180918.csv') # using new size classes from 2017 SD op-plan
-dat_old <- read.csv('./data/qP_simp_oldSCs_180918.csv')# using the old pre-2017 size classes 
-events <- read.csv('./data/events_180918.csv')
+dat_17 <- read.csv('./data/qP_simp_17_190301.csv') # using new size classes from 2017 SD op-plan
+dat_old <- read.csv('./data/qP_simp_oldSCs_190301.csv')# using the old pre-2017 size classes 
+events <- read.csv('./data/events_190304.csv')
 events %>% filter (PROJECT_CODE == 'T04', GEAR_PERFORMANCE_CODE == '1') %>%
   select( Event = EVENT_ID,
           year = YEAR,
           Project = PROJECT_CODE, 
           length=TOW_LENGTH_DESIGNATED,
           totCatch = CATCH_WEIGHT) -> event
-awl <- read.csv('./data/AWLshellfish_2017T04_180201.csv') # need to add this file 180918
+awl <- read.csv('./data/awl_shellfish_190301.csv') 
 
 ## Males Main ----
 
@@ -50,7 +51,7 @@ dat_17 %>% filter (PROJECT_CODE == 'T04') %>% select(year = YEAR, tows = n,
   write.csv(f,'./output/931PopFems_Main.csv')
 
 ##  Catch by Station (per Carol request) ----
-read.csv('./data/C_17_180918.csv') %>%
+read.csv('./data/C_17_190301.csv') %>%
   right_join(event, by = c('EVENT_ID' = 'Event')) %>% # limited to good tows at top
   filter (YEAR == 2018) %>% transmute(
     Station = STATION_ID,
@@ -71,7 +72,7 @@ read.csv('./data/C_17_180918.csv') %>%
   # previously a version of this from SQL, emailed to KG.  
 
 ## CPUE by station (per KG request 180130, not incorporated to 2017 rmd) ----
-  read.csv('./data/C_17_180918.csv') %>%  right_join(event, by = c('EVENT_ID' = 'Event')) %>% # limited to good tows at top
+  read.csv('./data/C_17_190301.csv') %>%  right_join(event, by = c('EVENT_ID' = 'Event')) %>% # limited to good tows at top
     filter  (YEAR == 2018) %>% transmute(
     Station = STATION_ID, 
     length = length, 
@@ -85,7 +86,7 @@ read.csv('./data/C_17_180918.csv') %>%
   write.csv(cpm ,'./output/2018T04_931CPUEByStation_17sc.csv') 
   
   # calc ranges and cv for KG 
-  events %>% filter (PROJECT_CODE == 'T04', YEAR == 2017, USED_IN_ESTIMATE == 'YES') %>% left_join(cpm, by= c("STATION_ID" = "Station")) %>% # exclude 139
+  events %>% filter (PROJECT_CODE == 'T04', YEAR == 2018, USED_IN_ESTIMATE == 'YES') %>% left_join(cpm, by= c("STATION_ID" = "Station")) %>% # exclude 139
   group_by(YEAR) %>% summarise( n= n(),
                                 LM_mean = mean(Legal), 
                                 LM_min = min(Legal), 
