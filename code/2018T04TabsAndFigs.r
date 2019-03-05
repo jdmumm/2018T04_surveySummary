@@ -6,7 +6,16 @@ library(tidyverse)
 library(stats)
 library(plotrix)
 library (Hmisc)
+library (scales)
 options (scipen = 10)
+library(extrafont)
+font_import()
+loadfonts(device="win")
+windowsFonts(Times=windowsFont("TT Times New Roman"))
+theme_set(theme_bw(base_size=12,base_family='Times New Roman')+ 
+            theme(panel.grid.major = element_blank(),
+                  panel.grid.minor = element_blank())+ 
+            theme(legend.title = element_blank()))
 dat_17 <- read.csv('./data/qP_simp_17_190301.csv') # using new size classes from 2017 SD op-plan
 dat_old <- read.csv('./data/qP_simp_oldSCs_190301.csv')# using the old pre-2017 size classes 
 events <- read.csv('./data/events_190304.csv')
@@ -109,50 +118,40 @@ read.csv('./data/C_17_190301.csv') %>%
       
   
 ##Plot LM ---- 
+# NEW size classes   
+  dat_17 %>% filter (PROJECT_CODE == "T04") %>%
+    transmute ("proj" = PROJECT_CODE, "yr" = YEAR,
+           "LM_P" = LM_P_ / 1000, # convert to thousands of crab 
+           "LM_P_CI" = LM_P_CI_ / 1000) %>%
   
-  dat <- dat_17 
-  dat <- dat_old 
+  ggplot (aes(x = yr, y = LM_P,
+              ymin = ifelse((LM_P - LM_P_CI) > 0 , (LM_P - LM_P_CI), 0),
+              ymax = LM_P + LM_P_CI)) + 
+          geom_pointrange() + 
+          scale_x_continuous(breaks = seq(1990,2018,1)) + 
+          scale_y_continuous(label = comma, breaks = seq(0,3000,1000), limits = c(0,3100)) + 
+          labs( x = "Year", y = "Thousands of crab") + 
+          theme( axis.text.x = element_text(angle=90, vjust= 0)) -> L17
+    
+  L17 %>% ggsave(file = './figs/T04LM_2017SCs.png', dpi=300, height=8.5, width=6.5, units="in" )
+
+# OLD size classes   
+  dat_old %>% filter (PROJECT_CODE == "T04") %>%
+    transmute ("proj" = PROJECT_CODE, "yr" = YEAR,
+               "LM_P" = LM_P_ / 1000, # convert to thousands of crab 
+               "LM_P_CI" = LM_P_CI_ / 1000) %>%
+    
+    ggplot (aes(x = yr, y = LM_P,
+                ymin = ifelse((LM_P - LM_P_CI) > 0 , (LM_P - LM_P_CI), 0),
+                ymax = LM_P + LM_P_CI)) + 
+    geom_pointrange() +  
+    scale_x_continuous(breaks = seq(1990,2018,1)) + 
+    scale_y_continuous(label = comma, breaks = seq(0,3000,500)) + 
+    labs( x = "Year", y = "Thousands of crab") + 
+    theme( axis.text.x = element_text(angle=90, vjust= 0)) -> Lold
   
-  #Convert to thousands of crabs
-  dat$LM_P <- dat$LM_P_/1000
-  dat$LM_P_CI <- dat$LM_P_CI_/1000
+  Lold %>% ggsave(file = './figs/T04LM_OldSCs.png', dpi=300, height=8.5, width=6.5, units="in" )
   
-  dat <- select(dat, "proj" = PROJECT_CODE, "yr" = YEAR,  LM_P, LM_P_CI)
-  
-  t04 <- dat[dat$proj == "T04",]
-  
-  #T04
-  par(mfrow=c(1,1), las=1, mgp=c(3.2, 1, 0), mar=c(3.8, 4.2, 1, 1), family = "serif", font = 1,
-      cex = 1, ps = 12, cex.lab = 1.16, bty = "l")
-  
-  #LM
-  dat <- t04
-  plotCI(dat$yr, dat$LM_P, col= "black", lwd=1,  pch= 19, cex = 1.0,
-         ui = dat$LM_P + dat$LM_P_CI,
-         li = ifelse((dat$LM_P - dat$LM_P_CI) > 0 , (dat$LM_P - dat$LM_P_CI), 0),
-         ylab= "Thousands of Crab", xlab = "", xaxt='n', yaxt='n', las = '1',font.lab = 2,
-         ylim = c(0,2950))
-  mtext("Year", side = 1, line = 2,font=2, cex= 1.16)
-  axis(side=1, at=seq(1990, 2018, by=1, las = '1', font = 2))
-  axis(side=2, at = seq(0, 2950, by=500, font = 2),
-       labels=formatC(seq(0, 2950, by=500),"d", big.mark=','))
-  minor.tick(ny = 5, nx = 0 )
-  # THRESHOLDS , KG asked not to include thresholds ----
-    # lines(x= c(2002,2017), y = c(500,500), lty = 5, col = "black", lwd =2)
-    # lines(x= c(2002,2017), y = c(100,100), lty = 3, col = "dimgrey")
-    # lines(x= c(2002,2017), y = c(50,50), lty = 5, col = "dimgrey")
-    # 
-    # detach("package:dplyr", unload=TRUE)
-    # library(stats)
-    # rec<- dat[dat$yr > 1997,]
-    # f5 <- rep(1/5, 5)
-    # y_lag <- filter(rec$LM_P, f5, sides=1)
-    # points(rec$yr, y_lag, col="dimgrey", cex = 1.0)
-    # 
-    # legend ("topright", inset = .1,
-    #         legend = c("Commercial MSST","Noncommercial 5-year threshold", "Noncommercial 1-year threshold", "5-Year average"),
-    #         col = c("black","dimgrey","dimgrey", "dimgrey"),
-    #         lty = c(5,3,5, NA), pch = c(NA,NA,NA,1), lwd = c(2,1,1,NA), bty = "n", y.intersp =1.2)
 
 ## KING and DUNGY CPUE    ##   from 161104 ----
  
