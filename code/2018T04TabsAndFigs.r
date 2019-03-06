@@ -271,33 +271,34 @@ for (i in yrs)
                    -              lwd = c(3,3), lty = c('solid','dotted'))
   
 # Clutch Tables ----  # SUPER SLOPPY, NEEDS DELETING/CLEANING. this was added to ad-hoc as more requested
-    awl %>% left_join (events) %>% filter (USED_IN_ESTIMATE == 'YES', YEAR == 2017, PROJECT_CODE == 'T04',
-                                           SPECIES_CODE == '931', SEX_CODE == 2, CRAB_EGG_DEVELOMENT_CODE != '3') %>%  #excluding juveniles 
-        select (EVENT_ID, num = CRAB_NUM, cw = BIOLOGICAL_WIDTH_MM,
-                full = FULLNESS_PERCENT, cc = CLUTCH_CONDITION_CODE,ed = CRAB_EGG_DEVELOMENT_CODE ) -> clutch
+    # single year tables.  Not sure if this used for anything. #190305 ----
+          awl %>% left_join (events) %>% filter (USED_IN_ESTIMATE == 'YES', YEAR == 2018, PROJECT_CODE == 'T04',
+                                                 SPECIES_CODE == '931', SEX_CODE == 2, CRAB_EGG_DEVELOMENT_CODE != '3') %>%  #excluding juveniles 
+              select (EVENT_ID, num = CRAB_NUM, cw = BIOLOGICAL_WIDTH_MM,
+                      full = FULLNESS_PERCENT, cc = CLUTCH_CONDITION_CODE,ed = CRAB_EGG_DEVELOMENT_CODE ) -> clutch
+          
+            #freq table for each variable   
+            eyed <- table(clutch$ed)
+            full <- table(clutch$full)
+            dead <- table(clutch$cc)
+            
+            #prop tables 
+            eyed.p <- as.data.frame(round(prop.table(eyed)*100,2))
+            full.p <- as.data.frame(round(prop.table(full)*100,2))
+            dead.p <- as.data.frame(round(prop.table(dead)*100,2))
+            
+            # calc n, trouble binding to prop tables, manualy add to tables for now.  
+            eyed.n <- margin.table(eyed)
+            full.n <- margin.table(full)
+            dead.n <- margin.table(dead)
+            
+            # write # 190305 not sure what these single year files are used for. 
+            write_csv(eyed.p, 'output/eyed.csv') 
+            write_csv(full.p, 'output/full.csv')
+            write_csv(dead.p, 'output/dead.csv')
     
-      #freq table for each variable   
-      eyed <- table(clutch$ed)
-      full <- table(clutch$full)
-      dead <- table(clutch$cc)
-      
-      #prop tables 
-      eyed.p <- as.data.frame(round(prop.table(eyed)*100,2))
-      full.p <- as.data.frame(round(prop.table(full)*100,2))
-      dead.p <- as.data.frame(round(prop.table(dead)*100,2))
-      
-      # calc n, trouble binding to prop tables, manualy add to tables for now.  
-      eyed.n <- margin.table(eyed)
-      full.n <- margin.table(full)
-      dead.n <- margin.table(dead)
-      
-      # write
-      write_csv(eyed.p, 'output/eyed.csv') 
-      write_csv(full.p, 'output/full.csv')
-      write_csv(dead.p, 'output/dead.csv')
-    
-    # To match report table select matures rather than non 3s. 
-      awl %>% left_join (events) %>% filter (USED_IN_ESTIMATE == 'YES', YEAR == 2017, PROJECT_CODE == 'T04',
+     # To match report table select matures rather than non 3s. 
+      awl %>% left_join (events) %>% filter (USED_IN_ESTIMATE == 'YES', YEAR == 2018, PROJECT_CODE == 'T04',
                                              SPECIES_CODE == '931', SEX_CODE == 2, CRAB_EGG_DEVELOMENT_CODE, 
                                              MAT_CLASS == 'MAT') %>%  #excluding juveniles 
         select (EVENT_ID, num = CRAB_NUM, cw = BIOLOGICAL_WIDTH_MM,
@@ -309,9 +310,9 @@ for (i in yrs)
     table(cc$f)  
     margin.table(table(cc$f)) # n 
     100 * prop.table(table(cc$f)) -> clutch_full
-    write.csv(clutch_full, './output/clutchfull_2017t04.csv')
-      
-    # Other clutch chracteristics for all years ---- 
+    write.csv(clutch_full, './output/clutchfull_2018t04.csv')
+    
+    # Multi Year clutch characteristic tables ----  
     read.csv ('data/T04931_awlClutch_thru2017.csv') %>% left_join (events) %>%  #all years included here
       filter (USED_IN_ESTIMATE == 'YES', PROJECT_CODE == 'T04',
           SPECIES_CODE == '931', SEX_CODE == 2, CRAB_EGG_DEVELOMENT_CODE, 
@@ -345,6 +346,8 @@ for (i in yrs)
     ed <- merge.data.frame(t,n,by.x = "row.names", by.y = "Var1")
     ed %>% select (Year = Row.names, n = Freq, 'Uneyed' = '1', 'Eyed' = '2', 'None or remnant eggs' ='4') -> ed
     write.csv(ed, './output/T04eggDev90to17.csv')
+    
+    #clutch fullness.  where is it? 190305 W
 
 # 931 abundance table with new and old as requested by Carol 180301.  #Code Copied from catch up report, should be improved. 
   dat <- read.csv("./data/qP_simp_17_170916.csv")
