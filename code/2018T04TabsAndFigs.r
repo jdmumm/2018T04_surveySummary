@@ -154,9 +154,7 @@ read.csv('./data/C_17_190301.csv') %>%
   Lold %>% ggsave(file = './figs/T04LM_OldSCs.png', dpi=300, height=8.5, width=6.5, units="in" )
   
 
-## KING and DUNGY CPUE    ##   from 161104 ----
- 
-  ##DUNGIES##
+## DUNGY CPUE ----
   dat <- read.csv("./data/qP_910_190301.csv")
   
   dat %>% select ("PROJECT_CODE", "YEAR","n","SM_CBar","SM_varC", "LM_CBar","LM_varC","TM_CBar","TM_varC",
