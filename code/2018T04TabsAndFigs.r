@@ -211,10 +211,12 @@ read.csv('./data/C_17_190301.csv') %>%
     dungyCPM %>% ggsave(file = "./figs/T04_910_cpm.png", dpi=300, height=8.5, width=6.5, units="in")    
     
 ## Tanner CH vs CW plot ## ----
-  
-read.csv ("./data/931_CHCW_T04T05T06_usedInEst_90to18.csv") %>% 
+# 190305 for final vesrion decided to just keep previous figure.  SHould be be virtually unchanged folling nprb edits.  
+# If i were to redo this figure should convert to ggplot and look at jz suggestion (exclued VO?)
+read.csv ("./data/awl_shellfish_190301.csv") %>% 
 filter(PROJECT_CODE == "T04", YEAR > 2008) -> awl # 2006 and 2007 had CH too, but excluding to fit on 6 panel plot
-
+events %>% filter (USED_IN_ESTIMATE == 'YES') %>% select (EVENT_ID) %>% inner_join(awl) -> awl # limit to used in est following previous
+    
 yrs <- unique(awl$YEAR)  
 
 par(mfcol=c(3,2))
