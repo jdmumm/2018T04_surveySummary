@@ -3,9 +3,8 @@
 library(tidyverse)
 
 options (scipen = 10)
-dat_17 <- read.csv('./data/qP_simp_17_170916.csv') # using new size classes from 2017 SD op-plan
-dat_old <- read.csv('./data/qP_simp_oldSCs_170916.csv')# using the old pre-2017 size classes 
-events <- read.csv('./data/events.csv')
+dat_17 <- read.csv('./data/qP_simp_17_190301.csv') # using new size classes from 2017 SD op-plan
+events <- read.csv('./data/events_190304.csv')
 events %>% filter (PROJECT_CODE == 'T04', GEAR_PERFORMANCE_CODE == '1') %>%
   select( Event = EVENT_ID,
           year = YEAR,
@@ -13,7 +12,7 @@ events %>% filter (PROJECT_CODE == 'T04', GEAR_PERFORMANCE_CODE == '1') %>%
           length=TOW_LENGTH_DESIGNATED,
           totCatch = CATCH_WEIGHT, 
           Used = USED_IN_ESTIMATE) -> event
-awl <- read.csv('./data/T04931_awlClutch_thru2017.csv') %>%
+read.csv('./data/awl_shellfish_190301.csv') %>%
   select ( Event = EVENT_ID, 
            Project = PROJECT_CODE, 
            species = SPECIES_CODE, 
@@ -54,7 +53,7 @@ awl <- read.csv('./data/T04931_awlClutch_thru2017.csv') %>%
       spread(temp, value) %>% 
       select (year, tows, b_mean, b_se, p_mean, p_se, f_mean, f_se) -> full
   # write
-    full %>% write.csv("./output/full.csv")
+    #full %>% write.csv("./output/full.csv")
 
 # egg development ----  #added 8/9 by copying fullness block above.  Could/should combine analysis of all 3 vars (Full,ED,CC) to reduce duplicated code. ----
     # exclude nulls   
@@ -79,7 +78,7 @@ awl <- read.csv('./data/T04931_awlClutch_thru2017.csv') %>%
       spread(temp, value) %>% 
       select (year, tows, '1_mean', '1_se', '2_mean', '2_se', '4_mean', '4_se') -> egg
     # write
-    egg %>% write.csv("./output/ed.csv") 
+    #egg %>% write.csv("./output/ed.csv") 
     
 # clutch condition ----  #added 8/9 by modifying ed block above ----
     # exclude nulls   
@@ -104,5 +103,8 @@ awl <- read.csv('./data/T04931_awlClutch_thru2017.csv') %>%
       spread(temp, value) %>% 
       select (year, tows, '1_mean', '1_se', '2_mean', '2_se', '3_mean', '3_se','4_mean', '4_se','5_mean', '5_se') -> clutchCond
     # write
-    clutchCond %>% write.csv("./output/cc.csv")     
+    #clutchCond %>% write.csv("./output/cc.csv")     
     
+#join 3 clutch tables and write 
+full %>% full_join (egg) %>% full_join (clutchCond) -> clutch    
+clutch %>% write.csv ("./output/clutch.csv")  
