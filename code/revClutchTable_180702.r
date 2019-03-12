@@ -76,7 +76,7 @@ read.csv('./data/awl_shellfish_190301.csv') %>%
     ed_l %>% gather (variable, value, -(year:tows)) %>%
       unite(temp, ed, variable) %>%
       spread(temp, value) %>% 
-      select (year, tows, '1_mean', '1_se', '2_mean', '2_se', '4_mean', '4_se') -> egg
+      select (year, tows, u_mean = '1_mean', u_se = '1_se', e_mean = '2_mean', e_se = '2_se', n_mean = '4_mean', n_se = '4_se') -> egg
     # write
     #egg %>% write.csv("./output/ed.csv") 
     
@@ -106,5 +106,6 @@ read.csv('./data/awl_shellfish_190301.csv') %>%
     #clutchCond %>% write.csv("./output/cc.csv")     
     
 #join 3 clutch tables and write 
-full %>% full_join (egg) %>% full_join (clutchCond) -> clutch    
+full %>% full_join (egg, by = 'year') %>% full_join (clutchCond, by = 'year') -> clutch    
 clutch %>% write.csv ("./output/clutch.csv")  
+
