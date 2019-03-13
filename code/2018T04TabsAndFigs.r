@@ -273,24 +273,31 @@ for (i in yrs)
 # Clutch Tables ----  
 # moved to external script revClutchTable_180702.r
 
-# 931 abundance table with new and old as requested by Carol 180301.  #Code Copied from catch up report, should be improved. 
-  dat <- read.csv("./data/qP_simp_17_170916.csv")
-    dat %>% filter (PROJECT_CODE == 'T04') -> dat
-    str(dat)
-    names(dat)
+# 931 abundance table with new and old split for Apendix ----
+  dat_17 %>% filter (PROJECT_CODE == 'T04') %>% 
+      select (Year = YEAR, 
+            'Pre-4' =  MT10_P_, 'Pre-4_CI' = MT10_P_CI_, 
+            'Pre-3' =  MT9_P_, 'Pre-3_CI'  = MT9_P_CI_, 
+            'Pre-2n' = MT7_P_, 'Pre-2n_CI' = MT7_P_CI_,
+            'Pre-2o' = MT8_P_, 'Pre-2o_CI' = MT8_P_CI_,
+            'Pre-1n' = MT5_P_, 'Pre-1n_CI' = MT5_P_CI_,
+            'Pre-1o' = MT6_P_, 'Pre-1o_CI' = MT6_P_CI_,
+            'Rn'     = MT1_P_, 'Rn_CI'     = MT1_P_CI_, 
+            'Ro'     = MT2_P_, 'Ro_CI'     = MT2_P_CI_, 
+            'PRn'    = MT3_P_, 'PRn_CI'    = MT3_P_CI_, 
+            'PRo'    = MT4_P_, 'PRo_CI'    = MT4_P_CI_) -> ma_17
+    write.csv(ma_17,'./output/931PopMales_Apx_17.csv')             
     
-    ma <- dat[c(1,2,26,27,24,25,20:23,16:19,8:15)]
-    ma
-    str(ma)
-    names(ma)
-    newNames <- c("PROJECT_CODE","YEAR", "Pre-4", "Pre-4_CI","Pre-3", "Pre-3_CI",
-                  "Pre-2n", "Pre-2n_CI", "Pre-2o", "Pre-2o_CI",
-                  "Pre-1n", "Pre-1n_CI", "Pre-1o", "Pre-1o_CI",
-                  "Rn", "Rn_CI", "Ro", "Ro_CI",
-                  "PRn", "PRn_CI", "PRo", "PRo_CI")
-    
-    cbind(names(ma), newNames) # check that classes are relabled properly. Yup
-    
-    names(ma) <- newNames
-    str(ma)
-    write.csv(ma,'./output/931PopMales_Apx_17.csv')    
+    dat_old %>% filter (PROJECT_CODE == 'T04') %>% 
+      select (Year = YEAR, 
+              'Pre-4' =  MT10_P_, 'Pre-4_CI' = MT10_P_CI_, 
+              'Pre-3' =  MT9_P_, 'Pre-3_CI'  = MT9_P_CI_, 
+              'Pre-2n' = MT7_P_, 'Pre-2n_CI' = MT7_P_CI_,
+              'Pre-2o' = MT8_P_, 'Pre-2o_CI' = MT8_P_CI_,
+              'Pre-1n' = MT5_P_, 'Pre-1n_CI' = MT5_P_CI_,
+              'Pre-1o' = MT6_P_, 'Pre-1o_CI' = MT6_P_CI_,
+              'Rn'     = MT1_P_, 'Rn_CI'     = MT1_P_CI_, 
+              'Ro'     = MT2_P_, 'Ro_CI'     = MT2_P_CI_, 
+              'PRn'    = MT3_P_, 'PRn_CI'    = MT3_P_CI_, 
+              'PRo'    = MT4_P_, 'PRo_CI'    = MT4_P_CI_) -> ma_old
+    write.csv(ma_old,'./output/931PopMales_Apx_old.csv')    
