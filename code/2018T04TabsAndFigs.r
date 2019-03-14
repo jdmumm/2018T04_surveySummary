@@ -176,7 +176,7 @@ read.csv('./data/C_17_190301.csv') %>%
                     SM_CBar, SM_SE, LM_CBar, LM_SE, TM_CBar, TM_SE, TF_CBar, TF_SE) %>%
   arrange(Proj, Year) %>% 
   filter (Proj == "T04") -> dung_pm 
-  write.csv(dung_pm, "./output/T04_910_cpm_190301.csv") # note previously included SD instead of SE
+  write.csv(dung_pm, "./output/910_cpm_190301.csv") # note previously included SD instead of SE
   # Plot TM
   dung_pm %>%  
   ggplot (aes(x = Year, y = TM_CBar,
