@@ -29,36 +29,36 @@ events %>% filter (PROJECT_CODE == 'T04', GEAR_PERFORMANCE_CODE == '1') %>%
 awl <- read.csv('./data/awl_shellfish_190301.csv') 
 
 ## Males Main ----
-
-  # New Size Classes 
-  m <- dat_17[dat_17$PROJECT_CODE == "T04", c(1:7,16,18,20,22,24,26)] 
-  #combine news and olds for P1s and P2s
-  m$P1 <- m$MT5_P_ + m$MT6_P_
-  m$P2 <- m$MT7_P_ + m$MT8_P_
-  names(m)[c(12,13)] <- c('P3','P4')      #"MT9_P_"  "MT10_P_"
-  m <- m[,-(8:11)] # remove columns with new old split
-  #reorder columns
-  m <- m[,c(1,2,3,9,8,11,10,4:7)]
-  m
-  write.csv(m,'./output/931PopMales_Main_17.csv')
-  
-  # Old Size Classes  - samee as above, just differnt file names. 
-  m <- dat_old[dat_old$PROJECT_CODE == "T04", c(1:7,16,18,20,22,24,26)] 
-  #combine news and olds for P1s and P2s
-  m$P1 <- m$MT5_P_ + m$MT6_P_
-  m$P2 <- m$MT7_P_ + m$MT8_P_
-  names(m)[c(12,13)] <- c('P3','P4')      #"MT9_P_"  "MT10_P_"
-  m <- m[,-(8:11)] # remove columns with new old split
-  #reorder columns
-  m <- m[,c(1,2,3,9,8,11,10,4:7)]
-  m
-  write.csv(m,'./output/931PopMales_Main_old.csv')
+# New Size Classes
+  dat_17 %>% filter (PROJECT_CODE == "T04") %>% 
+    transmute(Year = YEAR,Tows = n,
+              'Pre-4' =  MT10_P_,
+              'Pre-3' =  MT9_P_,  
+              'Pre-2' = MT7_P_ + MT8_P_, 
+              'Pre-1' = MT5_P_ + MT6_P_, 
+              'LM'    = LM_P_, 'LM_CI' = LM_P_CI_,  
+              'TM'    = TM_P_, 'TM_CI' = TM_P_CI_) -> m_17
+  #write.csv(m_17,'./output/931PopMales_Main_17.csv') 
+#Old Size Classes
+  dat_old %>% filter (PROJECT_CODE == "T04") %>% 
+    transmute(Year = YEAR,Tows = n,
+              'Pre-4' =  MT10_P_,
+              'Pre-3' =  MT9_P_,  
+              'Pre-2' = MT7_P_ + MT8_P_, 
+              'Pre-1' = MT5_P_ + MT6_P_, 
+              'LM'    = LM_P_, 'LM_CI' = LM_P_CI_,  
+              'TM'    = TM_P_, 'TM_CI' = TM_P_CI_) -> m_old
+  #write.csv(m_old,'./output/931PopMales_Main_old.csv') 
+# Composite table 
+m_17  %>% left_join (m_old %>% select (Year, LM_140 = LM, LM_140_CI = LM_CI)) %>% # join LM from old SC to abund table using new SCs 
+  select(-c(TM,TM_CI), everything())->m_comp # move totals to end 
+#write.csv(m_comp, './output/931PopMales_Main_comp.csv')  # this uses new size classes for all except LM_140. 
 
 ## Females Main ----
 dat_17 %>% filter (PROJECT_CODE == 'T04') %>% select(year = YEAR, tows = n,
                     FT11_P_, FT11_P_CI_, MF_P_, MF_P_CI_, TF_P_, TF_P_CI_) -> f
   
-  write.csv(f,'./output/931PopFems_Main.csv')
+  #write.csv(f,'./output/931PopFems_Main.csv')
 
 ##  Catch by Station (per Carol request) ----
 read.csv('./data/C_17_190301.csv') %>%
@@ -76,7 +76,7 @@ read.csv('./data/C_17_190301.csv') %>%
     JuvFems = FT11_T,
     MatFems = FT12_T +FT13_T,
     TotFems = TF_T) %>% arrange(Station) %>%
-  mutate_if(is.numeric, funs(as.character(formatC(round(., 1),1,format = "f")))) -> c
+  mutate_if(is.numeric, funs(as.character(formatC(round(., 2),2,format = "f")))) -> c
 
   write.csv(c,'./output/2018T04_931CatchByStation_17sc.csv') 
   # previously a version of this from SQL, emailed to KG.  
