@@ -209,7 +209,63 @@ read.csv('./data/C_17_190301.csv') %>%
     D_TF 
     dungyCPM <-arrangeGrob(D_TM,D_LM,D_TF, ncol=1)
     dungyCPM %>% ggsave(file = "./figs/T04_910_cpm.png", dpi=300, height=8.5, width=6.5, units="in")    
+
+## RKC CPUE (added 190430) ----
+  dat <- read.csv("./data/qP_921_190430.csv")
+  
+  dat %>% select ("PROJECT_CODE", "YEAR","n","SM_CBar","SM_varC", "LM_CBar","LM_varC","TM_CBar","TM_varC",
+                  "TF_CBar","TF_varC") -> dat
+  
+  ##Calc sample SDs and SEM
+  dat %>% mutate(
+    SM_SD = SM_varC^.5,
+    LM_SD = LM_varC^.5,
+    TM_SD = TM_varC^.5,
+    TF_SD = TF_varC^.5, 
+    SM_SE = SM_SD/(n^.5),
+    LM_SE = LM_SD/(n^.5),
+    TM_SE = TM_SD/(n^.5),
+    TF_SE = TF_SD/(n^.5)) %>%
     
+    #remove extra cols, reorder and rename 
+    select("Proj" = PROJECT_CODE, "Year" = YEAR, n,
+           SM_CBar, SM_SE, LM_CBar, LM_SE, TM_CBar, TM_SE, TF_CBar, TF_SE) %>%
+    arrange(Proj, Year) %>% 
+    filter (Proj == "T04") -> rkc_pm 
+  write.csv(rkc_pm, "./output/921_cpm_190430.csv") # note previously included SD instead of SE
+  # Plot TM
+  rkc_pm %>%  
+    ggplot (aes(x = Year, y = TM_CBar,
+                ymin = ifelse((TM_CBar - TM_SE) > 0, (TM_CBar - TM_SE), 0),
+                ymax = TM_CBar + TM_SE)) + 
+    geom_pointrange() + 
+    scale_x_continuous(breaks = seq(1990,2018,1)) + 
+    labs( x = "Year", y = "CPUE (crab/nmi)", title = 'Total Males') + 
+    theme( axis.text.x = element_text(angle=90, vjust= 0)) -> RKC_TM
+  RKC_TM
+  # Plot LM
+  rkc_pm %>%   
+    ggplot (aes(x = Year, y = LM_CBar,
+                ymin = ifelse((LM_CBar - LM_SE) > 0, (LM_CBar - LM_SE), 0),
+                ymax = LM_CBar + LM_SE)) + 
+    geom_pointrange() + 
+    scale_x_continuous(breaks = seq(1990,2018,1)) + 
+    labs( x = "Year", y = "CPUE (crab/nmi)", title = 'Legal Males') + 
+    theme( axis.text.x = element_text(angle=90, vjust= 0)) -> RKC_LM
+  RKC_LM
+  # Plot TF
+  rkc_pm %>%  
+    ggplot (aes(x = Year, y = TF_CBar,
+                ymin = ifelse((TF_CBar - TF_SE) > 0, (TF_CBar - TF_SE), 0),
+                ymax = TF_CBar + TF_SE)) + 
+    geom_pointrange() + 
+    scale_x_continuous(breaks = seq(1990,2018,1)) + 
+    labs( x = "Year", y = "CPUE (crab/nmi)", title = 'Total Females') + 
+    theme( axis.text.x = element_text(angle=90, vjust= 0)) -> RKC_TF
+  RKC_TF 
+  rkcCPM <-arrangeGrob(RKC_TM,RKC_LM,RKC_TF, ncol=1)
+  rkcCPM %>% ggsave(file = "./figs/T04_921_cpm.png", dpi=300, height=8.5, width=6.5, units="in")      
+        
 ## Tanner CH vs CW plot ## ----
 # 190305 for final vesrion decided to just keep previous figure.  SHould be be virtually unchanged folling nprb edits.  
 # If i were to redo this figure should convert to ggplot and look at jz suggestion (exclued VO?)
